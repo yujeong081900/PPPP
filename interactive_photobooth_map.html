@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <title>PhotoSpot - 네컷사진 부스지도 & 포즈 가이드</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "surface-container-highest": "#e3e2e6",
+            "on-primary-fixed-variant": "#5a00c6",
+            "tertiary-container": "#006e95",
+            "surface-bright": "#faf9fd",
+            "outline-variant": "#ccc3d8",
+            "primary-fixed": "#eaddff",
+            "error": "#ba1a1a",
+            "on-secondary": "#ffffff",
+            "on-surface": "#1b1b1f",
+            "surface-container": "#efedf1",
+            "on-secondary-container": "#620029",
+            "on-primary": "#ffffff",
+            "surface-container-high": "#e9e7ec",
+            "on-background": "#1b1b1f",
+            "secondary-container": "#fd5c8c",
+            "error-container": "#ffdad6",
+            "inverse-on-surface": "#f2f0f4",
+            "on-secondary-fixed": "#3f0018",
+            "tertiary-fixed": "#c4e7ff",
+            "secondary-fixed": "#ffd9df",
+            "tertiary": "#005574",
+            "on-secondary-fixed-variant": "#8f003f",
+            "surface-variant": "#e3e2e6",
+            "on-tertiary-container": "#caeaff",
+            "surface-tint": "#732ee4",
+            "secondary": "#b22156",
+            "surface-dim": "#dbd9dd",
+            "primary-container": "#7c3aed",
+            "on-primary-container": "#ede0ff",
+            "on-primary-fixed": "#25005a",
+            "tertiary-fixed-dim": "#7bd0ff",
+            "surface-container-low": "#f5f3f7",
+            "on-error-container": "#93000a",
+            "primary-fixed-dim": "#d2bbff",
+            "surface": "#faf9fd",
+            "background": "#faf9fd",
+            "outline": "#7b7487",
+            "secondary-fixed-dim": "#ffb1c1",
+            "primary": "#630ed4",
+            "on-surface-variant": "#4a4455",
+            "inverse-primary": "#d2bbff",
+            "on-tertiary-fixed-variant": "#004c69",
+            "on-error": "#ffffff", "on-tertiary-fixed": "#001e2c",
+            "on-tertiary": "#ffffff",
+            "surface-container-lowest": "#ffffff",
+            "inverse-surface": "#2f3034"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          spacing: {
+            "space-sm": "0.75rem",
+            "space-lg": "1.25rem",
+            "space-2xs": "0.25rem",
+            "gutter-sm": "0.75rem",
+            "margin-mobile": "1rem",
+            "space-xs": "0.5rem",
+            "space-2xl": "2.5rem",
+            "margin": "1.25rem",
+            "space-md": "1rem",
+            "space-xl": "1.75rem",
+            "gutter": "1rem"
+          },
+          fontFamily: {
+            "caption": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-md": ["Space Grotesk", "sans-serif"],
+            "label-md": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg-mobile": ["Space Grotesk", "sans-serif"],
+            "label-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "body-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "body-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "display-hero": ["Space Grotesk", "sans-serif"],
+            "headline-lg": ["Space Grotesk", "sans-serif"],
+            "headline-sm": ["Space Grotesk", "sans-serif"],
+            "body-md": ["Plus Jakarta Sans", "sans-serif"],
+            "display-hero-mobile": ["Space Grotesk", "sans-serif"],
+            "label-sm": ["Plus Jakarta Sans", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    @layer base {
+      html, body {
+        width: 100vw;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 1rem); }
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+    }
+    ::-webkit-scrollbar { display: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    .view-section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease-in-out;
+    }
+    .view-section.active {
+      display: flex;
+      opacity: 1;
+    }
+    .toast-animate {
+      animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes toastSlideUp {
+      from { transform: translateY(100%) scale(0.9); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* Map Zoom Transform Layer Styling */
+    #mapViewport {
+      touch-action: none; /* Prevent default touch scrolling on map canvas */
+      cursor: grab;
+      user-select: none;
+    }
+    #mapViewport:active {
+      cursor: grabbing;
+    }
+    #mapTransformLayer {
+      will-change: transform;
+      transform-origin: center center;
+      transition: transform 0.05s cubic-bezier(0.2, 0, 0, 1);
+    }
+    #mapTransformLayer.smooth-reset {
+      transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+  </style>
+</head>
+
+<body class="bg-surface font-body-md text-on-surface flex flex-col min-h-screen">
+
+  <header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+    <div class="h-14 px-margin-mobile flex items-center justify-between max-w-lg mx-auto">
+      <div class="flex items-center gap-space-xs">
+        <button id="navBackBtn" aria-label="뒤로가기" class="hidden w-10 h-10 -ml-2 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors" onclick="switchView('booth-map')">
+          <span class="material-symbols-outlined text-[22px]">arrow_back</span>
+        </button>
+        <span class="font-headline-sm text-headline-sm text-primary font-bold tracking-tight" id="appHeaderLogo">PhotoSpot</span>
+        
+        <button id="locationPickerBtn" onclick="showToast('📍 현위치가 강남역 10번 출구로 설정되었습니다')" class="flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-surface-container-high/60 text-on-surface hover:bg-surface-container-high transition-colors min-h-[38px]">
+          <span class="font-label-md text-label-md font-semibold" id="locationLabel">강남역 10번 출구</span>
+          <span class="material-symbols-outlined text-[16px] text-on-surface-variant">arrow_drop_down</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <button aria-label="알림" onclick="showToast('🔔 주변 부스 신규 프레임 3개가 추가되었습니다!')" class="w-10 h-10 flex items-center justify-center rounded-full text-on-surface hover:bg-surface-container transition-colors relative">
+          <span class="material-symbols-outlined text-[22px]">notifications</span>
+          <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-secondary"></span>
+        </button>
+        <img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20 shadow-xs cursor-pointer" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgzA6MxMJsP12APF6zUsiHHC3pCQQPp4eq0MKV8iqWsQRcNV1SqBBJyK3K9wNfn7_qSDJBz-7QuB3Z3rtdwbNWr4D7TJjhiVzeZcKcfn5kb8h_KuKLFb1DsSYfjNl2y4ol3zfUuKOjTmkfTBP9UlYk9b9GsJjDiH3qFbtU3AFGLOYZgsWV19arTjSc_uP06EIr_47-UxpHE8sxNQ3D4OpJGuxRA5ssXEefdU1DHtkoSR76TWDwEnLm" onclick="switchView('my-album')"/>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex flex-col relative w-full pt-14 pb-24 bg-surface min-h-screen max-w-lg mx-auto shadow-sm">
+
+    <!-- ================= VIEW 1: BOOTH MAP (부스 지도) ================= -->
+    <section id="view-map" class="view-section active flex-col w-full relative">
+      <!-- Interactive Sticky Filters -->
+      <div class="sticky top-0 z-30 bg-surface/90 backdrop-blur-xl pb-space-xs pt-space-2xs px-margin-mobile flex flex-col gap-2">
+        <!-- Brand Chips Carousel -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5 -mx-margin-mobile px-margin-mobile">
+          <button class="brand-chip active flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-headline-sm text-label-md shrink-0 shadow-sm transition-all" data-brand="all">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <span>전체</span>
+            <span class="font-caption text-caption opacity-80 ml-0.5" id="totalBoothCount">28</span>
+          </button>
+          <button class="brand-chip flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-headline-sm text-label-md shrink-0 shadow-sm hover:bg-surface-container transition-all" data-brand="haru">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#00A3FF]"></span>
+            <span>하루필름</span>
+          </button>
+          <button class="brand-chip flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-headline-sm text-label-md shrink-0 shadow-sm hover:bg-surface-container transition-all" data-brand="life4">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#FF2D78]"></span>
+            <span>인생네컷</span>
+          </button>
+          <button class="brand-chip flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-headline-sm text-label-md shrink-0 shadow-sm hover:bg-surface-container transition-all" data-brand="photoism">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#1F2937]"></span>
+            <span>포토이즘</span>
+          </button>
+          <button class="brand-chip flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-headline-sm text-label-md shrink-0 shadow-sm hover:bg-surface-container transition-all" data-brand="photogray">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#6B7280]"></span>
+            <span>포토그레이</span>
+          </button>
+          <button class="brand-chip flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-surface-container-lowest text-on-surface font-headline-sm text-label-md shrink-0 shadow-sm hover:bg-surface-container transition-all" data-brand="monomansion">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#92400E]"></span>
+            <span>모노맨션</span>
+          </button>
+        </div>
+
+        <!-- Keyword Hash Filter Tags -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 -mx-margin-mobile px-margin-mobile">
+          <button class="filter-tag px-3 py-1 rounded-full bg-surface-container-high/60 text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container-highest transition-colors active:scale-95" data-filter="natural-light">
+            ✨ #자연광잘드는
+          </button>
+          <button class="filter-tag active px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md shrink-0 shadow-sm active:scale-95" data-filter="cool-tone">
+            💙 #쿨톤필터
+          </button>
+          <button class="filter-tag px-3 py-1 rounded-full bg-surface-container-high/60 text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container-highest transition-colors active:scale-95" data-filter="hair-iron">
+            🔌 #고데기구비
+          </button>
+          <button class="filter-tag px-3 py-1 rounded-full bg-surface-container-high/60 text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container-highest transition-colors active:scale-95" data-filter="props">
+            🎀 #소품부자
+          </button>
+          <button class="filter-tag px-3 py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-md text-label-md shrink-0 active:scale-95" data-filter="new-open">
+            🔥 #신규오픈
+          </button>
+        </div>
+      </div>
+
+      <div class="relative w-full h-[520px] overflow-hidden select-none bg-surface-container-low" id="mapViewport">
+        
+        <!-- Synchronized Interactive Transform Layer (Includes Map Background & Markers) -->
+        <div class="relative w-full h-full origin-center" id="mapTransformLayer">
+          
+          <!-- Map Image Background -->
+          <div class="absolute inset-0 w-full h-full bg-cover bg-center brightness-[0.98] contrast-[1.03]" id="mapBackground" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAxlfGAYJ--9qw902-v09pmRE28UsfIFMAjh2X0zM_811FUEA5acdvZkb9R3j1lfjDd2WkzIhsbyWik0slkgtbHZ7ibl2U5y1XXBGkgb7lgfHEWKLPH_EvUvrdVWh7gcRuLHm1jWG_r34YgWimT9PALJra89FCptMjjwOu7oTjrg2dcfxCNn4dR8qwC_y3R1No_Wb4dC3owr4rBOGKVbIyFHwSFZ269GvlIJFc7BEss4AoyFrj-zEdb')">
+          </div>
+          
+          <!-- Soft Vignette Map Gradients -->
+          <div class="absolute inset-0 bg-gradient-to-b from-surface/40 via-transparent to-surface/90 pointer-events-none"></div>
+
+          <!-- Current User Location Pulse Marker -->
+          <div class="absolute top-[48%] left-[44%] -translate-x-1/2 -translate-y-1/2 pointer-events-none flex items-center justify-center">
+            <span class="w-12 h-12 rounded-full bg-primary/20 animate-ping absolute"></span>
+            <span class="w-6 h-6 rounded-full bg-primary/30 flex items-center justify-center relative">
+              <span class="w-3.5 h-3.5 rounded-full bg-primary shadow-[0_0_10px_rgba(124,58,237,0.8)] border-[2.5px] border-white"></span>
+            </span>
+            <div class="absolute -bottom-6 px-2 py-0.5 rounded-full bg-inverse-surface/85 backdrop-blur-sm text-inverse-on-surface font-caption text-caption shadow-sm whitespace-nowrap">
+              현위치 (강남역 CGV골목)
+            </div>
+          </div>
+
+          <!-- Dynamic Markers on Map (Pan & Zoom with Map) -->
+          <!-- Marker 1: Haru Film -->
+          <div class="marker-item absolute top-[36%] left-[60%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-20 group" onclick="selectMapBooth('haru-gangnam')">
+            <div class="relative flex flex-col items-center">
+              <div class="mb-1 px-2.5 py-1 rounded-full bg-surface-container-lowest shadow-[0_8px_20px_rgba(0,163,255,0.25)] flex items-center gap-1.5 animate-bounce">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#00A3FF]"></span>
+                <span class="font-headline-sm text-label-sm text-on-surface">하루필름</span>
+                <span class="font-label-sm text-label-sm text-[#00A3FF] font-bold">여유 2대</span>
+              </div>
+              <div class="w-11 h-11 rounded-full bg-[#00A3FF] text-white flex items-center justify-center shadow-[0_8px_24px_rgba(0,163,255,0.45)] ring-4 ring-white/90 transform group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">photo_camera</span>
+              </div>
+              <div class="w-2 h-2 rotate-45 bg-[#00A3FF] -mt-1 shadow-sm"></div>
+            </div>
+          </div>
+
+          <!-- Marker 2: Life Four Cuts -->
+          <div class="marker-item absolute top-[28%] left-[26%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 group" onclick="selectMapBooth('life4-main')">
+            <div class="relative flex flex-col items-center">
+              <div class="mb-1 px-2 py-0.5 rounded-full bg-surface-container-lowest/95 shadow-sm flex items-center gap-1">
+                <span class="font-label-sm text-label-sm text-on-surface">인생네컷</span>
+                <span class="font-label-sm text-label-sm text-secondary font-semibold">대기 10분</span>
+              </div>
+              <div class="w-9 h-9 rounded-full bg-[#FF2D78] text-white flex items-center justify-center shadow-md ring-2 ring-white transform group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[17px]">auto_awesome</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Marker 3: Photoism -->
+          <div class="marker-item absolute top-[58%] left-[22%] -translate-x-1/2 -translate-y-1/2 cursor-pointer z-10 group" onclick="selectMapBooth('photoism-box')">
+            <div class="relative flex flex-col items-center">
+              <div class="mb-1 px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container shadow-sm flex items-center gap-1">
+                <span class="font-label-sm text-label-sm font-bold">NEW</span>
+                <span class="font-label-sm text-label-sm">포토이즘</span>
+              </div>
+              <div class="w-9 h-9 rounded-full bg-[#1F2937] text-white flex items-center justify-center shadow-md ring-2 ring-white transform group-hover:scale-110 transition-transform">
+                <span class="material-symbols-outlined text-[17px]">crop_portrait</span>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- End #mapTransformLayer -->
+
+        <!-- Floating Interactive Map Controls -->
+        <div class="absolute right-4 top-4 flex flex-col gap-2 z-20">
+          <button id="zoomInBtn" aria-label="지도 확대" class="w-10 h-10 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface shadow-[0_6px_16px_rgba(0,0,0,0.12)] flex items-center justify-center active:scale-90 transition-all hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[22px]">add</span>
+          </button>
+          <button id="zoomOutBtn" aria-label="지도 축소" class="w-10 h-10 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface shadow-[0_6px_16px_rgba(0,0,0,0.12)] flex items-center justify-center active:scale-90 transition-all hover:bg-surface-container">
+            <span class="material-symbols-outlined text-[22px]">remove</span>
+          </button>
+          <button id="resetMapBtn" aria-label="내 위치 및 줌 리셋" class="w-10 h-10 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-primary shadow-[0_6px_16px_rgba(0,0,0,0.12)] flex items-center justify-center active:scale-90 transition-all hover:bg-surface-container mt-1">
+            <span class="material-symbols-outlined text-[22px]">my_location</span>
+          </button>
+          <button aria-label="목록형 보기" class="w-10 h-10 rounded-full bg-surface-container-lowest/90 backdrop-blur-md text-on-surface-variant shadow-[0_6px_16px_rgba(0,0,0,0.12)] flex items-center justify-center active:scale-90 transition-all hover:bg-surface-container" onclick="switchView('booth-search')">
+            <span class="material-symbols-outlined text-[20px]">format_list_bulleted</span>
+          </button>
+        </div>
+
+        <!-- Live Area Radar Pill Overlay & Zoom Scale Indicator -->
+        <div class="absolute left-4 top-4 z-20 flex flex-col gap-1.5 pointer-events-none">
+          <div class="px-3 py-1.5 rounded-full bg-surface-container-lowest/90 backdrop-blur-md shadow-sm flex items-center gap-1.5 pointer-events-auto">
+            <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span>
+            <span class="font-label-sm text-label-sm text-on-surface">강남 상권 부스 혼잡도: <strong class="text-primary">원활</strong></span>
+          </div>
+          <div class="self-start px-2.5 py-0.5 rounded-full bg-inverse-surface/70 backdrop-blur-md text-inverse-on-surface font-caption text-[11px]" id="zoomScaleBadge">
+            확대: 100%
+          </div>
+        </div>
+
+        <div class="absolute bottom-20 left-1/2 -translate-x-1/2 z-20 pointer-events-none opacity-70 transition-opacity" id="mapGuideHint">
+          <div class="px-3 py-1 rounded-full bg-black/60 backdrop-blur-md text-white font-caption text-[11px] flex items-center gap-1 shadow-md">
+            <span class="material-symbols-outlined text-[14px]">pinch</span> 드래그 및 손가락으로 줌인 가능
+          </div>
+        </div>
+      </div>
+
+      <div class="w-full px-margin-mobile -mt-16 z-30 mb-4">
+        <div class="bg-surface-container-lowest rounded-3xl p-5 shadow-[0_16px_40px_rgba(99,14,212,0.14)] relative border border-black/5">
+          <div class="w-10 h-1 bg-surface-container-highest rounded-full mx-auto mb-3"></div>
+          
+          <div class="flex items-start justify-between gap-3 mb-3">
+            <div class="flex flex-col">
+              <div class="flex items-center gap-2">
+                <span id="selectedBrandBadge" class="px-2 py-0.5 rounded-md bg-[#00A3FF]/10 text-[#00A3FF] font-headline-sm text-label-sm font-bold">
+                  하루필름
+                </span>
+                <span class="font-caption text-caption text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full flex items-center gap-1" id="selectedDistance">
+                  <span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">near_me</span> 120m
+                </span>
+              </div>
+              <h2 id="selectedBoothTitle" class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mt-1 tracking-tight flex items-center gap-1.5">
+                강남역 2호점 (CGV 뒷골목)
+              </h2>
+              <div class="flex items-center gap-2 mt-1">
+                <div class="flex items-center text-amber-500">
+                  <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                  <span class="font-headline-sm text-label-md text-on-surface ml-0.5" id="selectedRating">4.9</span>
+                </div>
+                <span class="text-outline-variant font-caption text-caption">•</span>
+                <span class="font-body-sm text-body-sm text-on-surface-variant" id="selectedReviews">방문 리뷰 1,280+</span>
+                <span class="text-outline-variant font-caption text-caption">•</span>
+                <span class="font-label-sm text-label-sm text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded font-bold" id="selectedStatus">대기 없음 (쾌적)</span>
+              </div>
+            </div>
+
+            <button aria-label="즐겨찾기" onclick="toggleFavorite(this)" class="w-10 h-10 rounded-full bg-surface-container-low flex items-center justify-center text-secondary hover:bg-secondary-fixed transition-colors shrink-0">
+              <span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+            </button>
+          </div>
+
+          <!-- Feature Highlight Badges -->
+          <div class="flex flex-wrap gap-1.5 mb-4" id="selectedBadges">
+            <span class="px-2.5 py-1 rounded-lg bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant">⚡ 다이슨 에어랩 구비</span>
+            <span class="px-2.5 py-1 rounded-lg bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant">🩵 시그니처 딥블루 4룸</span>
+            <span class="px-2.5 py-1 rounded-lg bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant">👒 Y2K 헤드폰 &amp; 인형모자 40종</span>
+          </div>
+
+          <!-- Live Photo Strip Feed -->
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-headline-sm text-label-md text-on-surface font-semibold flex items-center gap-1">
+                <span class="material-symbols-outlined text-[16px] text-primary">photo_library</span> 최근 방문자 네컷 프레임
+              </span>
+              <span class="font-caption text-caption text-on-surface-variant">오늘 34개 촬영됨</span>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2">
+              <div class="flex flex-col bg-surface-container-low p-1.5 rounded-xl shadow-xs cursor-pointer hover:opacity-90 transition-opacity" onclick="switchView('booth-detail')">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                  <img class="w-full h-full object-cover" alt="Photobooth strip result" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnaTSaS2aGbNoVGEKZmIl8-4nYhvnpfJbRGvd2BBp32uznhrJBtN98VeU_fuk_lG_N1XpDFb94WYhQWC-6iUN0nBvpZeeM9LuWEcmL1DqPzP0Fvqr8gpQ8BxS9LvVLrEyZwJm5Myu1q-CDV2kqa3np0cabj98M3ihZo6zvRHBZ4EiT7M9SXZTzQesqLfzAhjSRBAixM4U3rsLgTNjZ5S0UFEExVzl2_uVCz2tWfhCA6HnoGENeKPPe"/>
+                  <span class="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-caption">12분 전</span>
+                </div>
+                <div class="mt-1 flex items-center justify-between px-0.5">
+                  <span class="font-caption text-caption text-on-surface-variant truncate">스카이블루</span>
+                  <span class="font-caption text-[10px] text-secondary flex items-center"><span class="material-symbols-outlined text-[10px] mr-0.5">favorite</span>42</span>
+                </div>
+              </div>
+
+              <div class="flex flex-col bg-surface-container-low p-1.5 rounded-xl shadow-xs cursor-pointer hover:opacity-90 transition-opacity" onclick="switchView('booth-detail')">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                  <img class="w-full h-full object-cover" alt="Couple pose result" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWu0w-pliuV6KXQn1vVcorH46uG8buid9K5xTBWriYWBZ6mWDvP3CeJgnF2nwDRt-5uQcobiK9qC6osOoZF1wOSAOC5qtanVfBzhxIPqv3pZHglkgbcVhnSFYj7W8nRIuv-oV6WbNMrCBt8fs0AIgUt8McdKExO-FjQl-fxtDzIhQzf3Geq9eoxcDR3o9hdMHKM6TFiLV8316WI4enhw2r8LR1s82UjHwM56yynx21o2jInZXBGP75"/>
+                  <span class="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-caption">28분 전</span>
+                </div>
+                <div class="mt-1 flex items-center justify-between px-0.5">
+                  <span class="font-caption text-caption text-on-surface-variant truncate">MZ 거울</span>
+                  <span class="font-caption text-[10px] text-secondary flex items-center"><span class="material-symbols-outlined text-[10px] mr-0.5">favorite</span>89</span>
+                </div>
+              </div>
+
+              <div class="flex flex-col bg-surface-container-low p-1.5 rounded-xl shadow-xs cursor-pointer hover:opacity-90 transition-opacity" onclick="switchView('booth-detail')">
+                <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+                  <img class="w-full h-full object-cover" alt="Monochrome photobooth strip" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcZdqlZxtROw36vZ7OKnjuIdDilQvqDTKHd3hPnYpKqHkaMMc-2zxnCxZ_DeFNMPaY0rJKyuHQUZE0A9rPbHZl5yxSoGVJbKmJukKI7Fy2LxbUb0zVRDYGTxL70gzBSaJoceaIPXEpSOrIbN7egMB6azOfxe9Xxoa3qoyyDBTpa6fVoKR7UHO5ScoCqxUw_eQkSz-XsrXZ8asoMwOEKc2xO3LO2YoO72-VbOaK6HMivZbX9OwlAYv3"/>
+                  <span class="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-black/60 backdrop-blur-sm text-[9px] text-white font-caption">45분 전</span>
+                </div>
+                <div class="mt-1 flex items-center justify-between px-0.5">
+                  <span class="font-caption text-caption text-on-surface-variant truncate">네이비 4컷</span>
+                  <span class="font-caption text-[10px] text-secondary flex items-center"><span class="material-symbols-outlined text-[10px] mr-0.5">favorite</span>63</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-2.5 pt-1">
+            <button onclick="showToast('🗺️ 카카오맵/네이버지도 길안내로 연결됩니다 (도보 2분)')" class="flex-1 py-3 px-4 rounded-full bg-primary text-on-primary font-headline-sm text-label-lg font-bold flex items-center justify-center gap-2 shadow-[0_8px_20px_rgba(99,14,212,0.35)] active:scale-[0.98] transition-all hover:bg-primary-container">
+              <span class="material-symbols-outlined text-[19px]">directions_walk</span>
+              <span>지금 길찾기</span>
+            </button>
+            <button onclick="switchView('booth-detail')" class="py-3 px-4 rounded-full bg-surface-container text-on-surface font-headline-sm text-label-md flex items-center justify-center gap-1 active:scale-[0.98] transition-all hover:bg-surface-container-high">
+              <span>상세 정보</span>
+              <span class="material-symbols-outlined text-[18px]">chevron_right</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: BOOTH SEARCH / EXPLORE LIST (부스 탐색) ================= -->
+    <section id="view-search" class="view-section flex-col w-full px-margin-mobile pt-space-xs">
+      <div class="mb-4">
+        <div class="relative flex items-center w-full">
+          <span class="material-symbols-outlined absolute left-3.5 text-on-surface-variant text-[20px]">search</span>
+          <input type="text" placeholder="부스명, 지점명, 특이 소품 검색..." class="w-full pl-10 pr-10 py-2.5 rounded-full bg-surface-container-low border border-outline-variant/40 font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/50" oninput="filterSearchList(this.value)"/>
+          <button class="absolute right-3 text-on-surface-variant" onclick="showToast('🎛️ 상세 정렬 옵션 설정')">
+            <span class="material-symbols-outlined text-[20px]">tune</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between mb-3">
+        <span class="font-label-lg text-label-lg font-bold text-on-surface">주변 탐색 결과 (6개)</span>
+        <span class="font-caption text-caption text-on-surface-variant">거리순 • 500m 이내</span>
+      </div>
+
+      <!-- Search List Cards -->
+      <div class="space-y-3" id="searchCardsList">
+        <!-- Card 1 -->
+        <div class="bg-surface-container-lowest p-3.5 rounded-2xl shadow-xs border border-black/5 flex gap-3 cursor-pointer hover:bg-surface-container-low transition-colors" onclick="switchView('booth-detail')">
+          <img class="w-24 h-24 rounded-xl object-cover shrink-0" alt="Haru film booth" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFZIug6uW67A0qcJVFz9Wo7lXYlXmoPhN-D8Gm085M9fueyfRIsE6UhO-1oFHptw7c36K6gK_UPgayZg0dStxKQybUkfFlqetp3Hx608F5DMA_isA6XODIpR73nA5t2Z-LFLq56arSm8VczY5wYL8nIjYNbLXGS2RITCb9GAvXDoeEtG37I5F_4Tc6JZDJ9w8Qcg90k7bau6oqqkfZwa3KEhh9nPRzcE9VT0dQTv1W9wnVijClGR4t"/>
+          <div class="flex flex-col justify-between flex-1 min-w-0">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded bg-[#00A3FF]/10 text-[#00A3FF] font-label-sm text-[11px] font-bold">하루필름</span>
+                <span class="font-caption text-caption text-emerald-600 font-bold">여유</span>
+              </div>
+              <h3 class="font-headline-sm text-label-lg font-bold text-on-surface truncate mt-1">하루필름 강남대로점</h3>
+              <p class="font-body-sm text-caption text-on-surface-variant truncate">서울 강남구 강남대로 428 1층</p>
+            </div>
+            <div class="flex items-center justify-between text-caption text-on-surface-variant pt-1 border-t border-surface-container">
+              <span>⭐ 4.89 (142)</span>
+              <span>🏃‍♂️ 도보 3분 (120m)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-surface-container-lowest p-3.5 rounded-2xl shadow-xs border border-black/5 flex gap-3 cursor-pointer hover:bg-surface-container-low transition-colors" onclick="switchView('booth-detail')">
+          <img class="w-24 h-24 rounded-xl object-cover shrink-0" alt="Life four cut booth" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWu0w-pliuV6KXQn1vVcorH46uG8buid9K5xTBWriYWBZ6mWDvP3CeJgnF2nwDRt-5uQcobiK9qC6osOoZF1wOSAOC5qtanVfBzhxIPqv3pZHglkgbcVhnSFYj7W8nRIuv-oV6WbNMrCBt8fs0AIgUt8McdKExO-FjQl-fxtDzIhQzf3Geq9eoxcDR3o9hdMHKM6TFiLV8316WI4enhw2r8LR1s82UjHwM56yynx21o2jInZXBGP75"/>
+          <div class="flex flex-col justify-between flex-1 min-w-0">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded bg-[#FF2D78]/10 text-[#FF2D78] font-label-sm text-[11px] font-bold">인생네컷</span>
+                <span class="font-caption text-caption text-secondary font-bold">대기 10분</span>
+              </div>
+              <h3 class="font-headline-sm text-label-lg font-bold text-on-surface truncate mt-1">인생네컷 강남역CGV점</h3>
+              <p class="font-body-sm text-caption text-on-surface-variant truncate">서울 강남구 테헤란로1길 28</p>
+            </div>
+            <div class="flex items-center justify-between text-caption text-on-surface-variant pt-1 border-t border-surface-container">
+              <span>⭐ 4.75 (310)</span>
+              <span>🏃‍♂️ 도보 5분 (210m)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-surface-container-lowest p-3.5 rounded-2xl shadow-xs border border-black/5 flex gap-3 cursor-pointer hover:bg-surface-container-low transition-colors" onclick="switchView('booth-detail')">
+          <img class="w-24 h-24 rounded-xl object-cover shrink-0" alt="Photoism booth" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcZdqlZxtROw36vZ7OKnjuIdDilQvqDTKHd3hPnYpKqHkaMMc-2zxnCxZ_DeFNMPaY0rJKyuHQUZE0A9rPbHZl5yxSoGVJbKmJukKI7Fy2LxbUb0zVRDYGTxL70gzBSaJoceaIPXEpSOrIbN7egMB6azOfxe9Xxoa3qoyyDBTpa6fVoKR7UHO5ScoCqxUw_eQkSz-XsrXZ8asoMwOEKc2xO3LO2YoO72-VbOaK6HMivZbX9OwlAYv3"/>
+          <div class="flex flex-col justify-between flex-1 min-w-0">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded bg-[#1F2937]/10 text-[#1F2937] font-label-sm text-[11px] font-bold">포토이즘</span>
+                <span class="font-caption text-caption text-emerald-600 font-bold">여유</span>
+              </div>
+              <h3 class="font-headline-sm text-label-lg font-bold text-on-surface truncate mt-1">포토이즘 박스 강남점</h3>
+              <p class="font-body-sm text-caption text-on-surface-variant truncate">서울 강남구 강남대로102길 14</p>
+            </div>
+            <div class="flex items-center justify-between text-caption text-on-surface-variant pt-1 border-t border-surface-container">
+              <span>⭐ 4.82 (98)</span>
+              <span>🏃‍♂️ 도보 7분 (340m)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 3: POSE GALLERY (포즈 팁) ================= -->
+    <section id="view-pose" class="view-section flex-col w-full">
+      <!-- Top Curated Banner -->
+      <div class="px-margin-mobile pt-space-xs pb-space-sm">
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary-container via-primary to-secondary p-space-md text-on-primary shadow-lg">
+          <div class="relative z-10 flex flex-col justify-between h-full space-y-space-xs">
+            <div class="flex items-center justify-between">
+              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container-lowest/20 backdrop-blur-md text-on-primary font-label-sm text-label-sm">
+                <span class="material-symbols-outlined text-[14px]">local_fire_department</span> WEEKLY TREND
+              </span>
+              <span class="font-headline-sm text-headline-sm font-bold text-on-primary/80">#01</span>
+            </div>
+            <div>
+              <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-primary">이번 주 네컷 포즈 TOP 10 📸</h2>
+              <p class="font-body-sm text-body-sm text-on-primary-container mt-1">부스 들어가기 전 필수 확인! 실패 없는 인생샷 공식</p>
+            </div>
+            <div class="pt-1 flex items-center justify-between">
+              <div class="flex -space-x-2">
+                <div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center font-caption text-caption text-on-secondary-container">🐰</div>
+                <div class="w-6 h-6 rounded-full bg-primary-fixed flex items-center justify-center font-caption text-caption text-on-primary-fixed">🖤</div>
+                <div class="w-6 h-6 rounded-full bg-tertiary-fixed flex items-center justify-center font-caption text-caption text-on-tertiary-fixed">✨</div>
+              </div>
+              <button onclick="showToast('🔥 주간 랭킹 1~10위 포즈 모음으로 이동합니다')" class="flex items-center gap-1 font-label-md text-label-md text-on-primary underline decoration-2 underline-offset-4 active:scale-95 transition-transform">
+                전체 랭킹 보기
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+          <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-secondary-container/30 blur-2xl pointer-events-none"></div>
+          <div class="absolute -left-4 -top-4 w-24 h-24 rounded-full bg-primary-fixed/20 blur-xl pointer-events-none"></div>
+        </div>
+      </div>
+
+      <!-- Filter & Segmentation -->
+      <div class="px-margin-mobile space-y-space-xs mb-space-sm">
+        <div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar py-1">
+          <button class="filter-size-btn shrink-0 px-3.5 py-1.5 rounded-full bg-on-surface text-surface font-label-md text-label-md flex items-center gap-1 shadow-sm transition-all" data-size="all">
+            <span>전체</span>
+          </button>
+          <button class="filter-size-btn shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-highest transition-all" data-size="1">
+            <span>👤 1인 단독</span>
+          </button>
+          <button class="filter-size-btn shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-highest transition-all" data-size="2">
+            <span>👥 2인 커플/우정</span>
+          </button>
+          <button class="filter-size-btn shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-md text-label-md flex items-center gap-1 hover:bg-surface-container-highest transition-all" data-size="3-4">
+            <span>✨ 3~4인</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="px-margin-mobile grid grid-cols-2 gap-gutter-sm pb-space-2xl">
+        <!-- Pose Card 1 -->
+        <div class="pose-card bg-surface-container-lowest rounded-xl overflow-hidden shadow-xs border border-black/5 flex flex-col justify-between">
+          <div>
+            <div class="relative aspect-[3/4] w-full overflow-hidden bg-surface-container">
+              <img class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" alt="Best friends photo booth pose" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO_FXSn9dhH8QLC7O9z-yEFFqXICjRx_uowS_FXsistTD_J_MdsUESECkzm4Ia1ch4Yq4Gwi2rEnoG-g6HAE91wTEvXlbuUJr4IoQUNew4VWbqecEcBeifUfZ5cUkqphv8mQBP_5i8g8DscJRSnw6BK_8sgV1TNSBRmmQy_OFTLyfPZ_Jt2H2aBt1POvoXb93Rv9p6UFJtTyYgG8NdVDMD6MVcioO2lkIjsIjPh53FdvRYERp5qaEP"/>
+              <div class="absolute top-2 left-2 flex items-center gap-1 bg-surface/90 backdrop-blur-md px-2 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary-container"></span>
+                <span class="font-label-sm text-[10px] text-on-surface font-semibold">2인 우정</span>
+              </div>
+              <button onclick="toggleFavorite(this)" class="like-btn absolute top-2 right-2 w-7 h-7 rounded-full bg-surface/80 backdrop-blur-md flex items-center justify-center text-on-surface hover:text-secondary active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-[18px]">favorite</span>
+              </button>
+            </div>
+            <div class="p-2.5 space-y-1">
+              <div class="flex items-center gap-1">
+                <span class="font-caption text-[11px] text-primary font-bold">#자연스러운</span>
+                <span class="font-caption text-[11px] text-on-surface-variant">#Y2K</span>
+              </div>
+              <h3 class="font-headline-sm text-label-lg leading-tight text-on-surface font-bold truncate">기본 장꾸 4단 콤보</h3>
+            </div>
+          </div>
+          <div class="p-2.5 pt-0">
+            <button class="w-full py-1.5 rounded-full bg-surface-container text-primary hover:bg-primary-fixed hover:text-on-primary-fixed font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 transition-colors" onclick="openPoseViewer('기본 장꾸 4단 콤보', '2인 커플/우정', ['거울 보며 정면 스마일', '손하트 교차 & 윙크', '볼 콕 찌르며 놀란 표정', '어깨동무 밀착 포즈'])">
+              <span class="material-symbols-outlined text-[16px]">visibility</span>
+              <span>가이드 띄우기</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pose Card 2 -->
+        <div class="pose-card bg-surface-container-lowest rounded-xl overflow-hidden shadow-xs border border-black/5 flex flex-col justify-between">
+          <div>
+            <div class="relative aspect-[3/4] w-full overflow-hidden bg-surface-container">
+              <img class="w-full h-full object-cover transition-transform duration-300 hover:scale-105" alt="Solo girl photobooth pose" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCit-67WBpkYTXeFxMjaXUzQacDBFXv45EKZRvVJvg4lExEAh1vo8gVce78My8puvAVg-aqnTn7qqlm9jqOR9wdYPA6LW6UGmR5ffObHkLkraATS_tFvQJE4uc0MLMM9GHEv_u8gCQwlt9YVHpLvxYEm8wqgrD50FnV-7zphh49mgq_PVV2ktllGU9VHtetjugoPK_RIYOlOXQTlddhxLYW3gk1VoFPFgK1ofFVcidtPxewxXLB1TaB"/>
+              <div class="absolute top-2 left-2 flex items-center gap-1 bg-surface/90 backdrop-blur-md px-2 py-0.5 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                <span class="font-label-sm text-[10px] text-on-surface font-semibold">1인 솔로</span>
+              </div>
+              <button onclick="toggleFavorite(this)" class="like-btn absolute top-2 right-2 w-7 h-7 rounded-full bg-surface/80 backdrop-blur-md flex items-center justify-center text-on-surface hover:text-secondary active:scale-90 transition-transform">
+                <span class="material-symbols-outlined text-[18px]">favorite</span>
+              </button>
+            </div>
+            <div class="p-2.5 space-y-1">
+              <div class="flex items-center gap-1">
+                <span class="font-caption text-[11px] text-secondary font-bold">#시크도도</span>
+                <span class="font-caption text-[11px] text-on-surface-variant">#솔로컷</span>
+              </div>
+              <h3 class="font-headline-sm text-label-lg leading-tight text-on-surface font-bold truncate">선글라스 힙스터 무드</h3>
+            </div>
+          </div>
+          <div class="p-2.5 pt-0">
+            <button class="w-full py-1.5 rounded-full bg-surface-container text-primary hover:bg-primary-fixed hover:text-on-primary-fixed font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 transition-colors" onclick="openPoseViewer('선글라스 힙스터 무드', '1인 단독', ['선글라스 살짝 내리기', '양손 머리 뒤로 깍지', '턱 괴고 정면 응시', '반전 상큼 브이'])">
+              <span class="material-symbols-outlined text-[16px]">visibility</span>
+              <span>가이드 띄우기</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 4: BOOTH DETAIL (부스 상세) ================= -->
+    <section id="view-detail" class="view-section flex-col w-full pb-10">
+      <!-- Image Carousel -->
+      <div class="relative w-full overflow-hidden">
+        <div class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar px-margin-mobile gap-gutter-sm pt-space-xs pb-space-sm">
+          <div class="snap-center shrink-0 w-[85vw] aspect-[4/3] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
+            <img class="w-full h-full object-cover" alt="Haru Film exterior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDFZIug6uW67A0qcJVFz9Wo7lXYlXmoPhN-D8Gm085M9fueyfRIsE6UhO-1oFHptw7c36K6gK_UPgayZg0dStxKQybUkfFlqetp3Hx608F5DMA_isA6XODIpR73nA5t2Z-LFLq56arSm8VczY5wYL8nIjYNbLXGS2RITCb9GAvXDoeEtG37I5F_4Tc6JZDJ9w8Qcg90k7bau6oqqkfZwa3KEhh9nPRzcE9VT0dQTv1W9wnVijClGR4t"/>
+            <div class="absolute top-3 left-3 bg-tertiary-container/90 backdrop-blur-md text-on-tertiary-container px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
+              <span class="w-2 h-2 rounded-full bg-tertiary-fixed animate-pulse"></span>
+              <span class="font-label-sm text-label-sm font-bold">실시간 한산함 (대기 없음)</span>
+            </div>
+            <div class="absolute bottom-3 right-3 bg-inverse-surface/75 text-inverse-on-surface px-2.5 py-1 rounded-full font-label-sm text-label-sm tracking-widest backdrop-blur-md">1 / 4</div>
+          </div>
+          <div class="snap-center shrink-0 w-[85vw] aspect-[4/3] rounded-2xl overflow-hidden shadow-sm relative bg-surface-container">
+            <img class="w-full h-full object-cover" alt="Powder room amenities" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoLXevnroY4UJo4WhpFJULtvJ8e6rNPBY580xU38TxPEQyqfeg3XCexxTvWvxemtkesQPbNn5uhAa8vlOoL4zEI2c8VU0vGzm4lyIrsmVVzKJiWqwNV4X1E9le5snicVeIJ_M0yw4VsokXYNw2lHeQz5I5FJ_X1cmNmi2yCygnP1yX3VhOzs-asM3qpT2ShVGH7p0wJeZihoCvh54L2W4NS0kJFCtpZYvqNdhXuLx3GSIO806pYM1D"/>
+            <div class="absolute bottom-3 right-3 bg-inverse-surface/75 text-inverse-on-surface px-2.5 py-1 rounded-full font-label-sm text-label-sm tracking-widest backdrop-blur-md">2 / 4</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Core Booth Info -->
+      <div class="px-margin-mobile flex flex-col gap-space-xs mt-1">
+        <div class="flex items-center gap-space-2xs">
+          <span class="inline-flex items-center gap-1 bg-secondary text-on-secondary px-2.5 py-0.5 rounded-full font-label-sm text-label-sm">
+            <span class="material-symbols-outlined text-[14px]">auto_awesome</span> NEW 오픈
+          </span>
+          <span class="inline-flex items-center gap-1 bg-surface-container text-on-surface-variant px-2.5 py-0.5 rounded-full font-label-sm text-label-sm">
+            <span class="material-symbols-outlined text-[14px]">directions_walk</span> 도보 3분
+          </span>
+        </div>
+
+        <div class="flex items-start justify-between gap-space-sm">
+          <div class="flex flex-col min-w-0">
+            <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface tracking-tight truncate">하루필름 강남대로점</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1 mt-0.5">
+              <span class="material-symbols-outlined text-[16px] text-tertiary">location_on</span> 서울 강남구 강남대로 428 1층
+            </p>
+          </div>
+          <button onclick="toggleFavorite(this)" aria-label="즐겨찾기" class="shrink-0 w-11 h-11 rounded-full bg-surface-container flex items-center justify-center text-on-surface active:scale-90 transition-transform shadow-xs">
+            <span class="material-symbols-outlined text-[22px] text-secondary">favorite</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 5: MY ALBUM (내 앨범) ================= -->
+    <section id="view-album" class="view-section flex-col w-full px-margin-mobile pt-space-xs">
+      <div class="bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-2xl mb-4 flex items-center justify-between">
+        <div>
+          <h2 class="font-headline-sm text-headline-sm font-bold text-on-surface">마이 네컷 디지털 앨범 📸</h2>
+          <p class="font-caption text-caption text-on-surface-variant mt-0.5">보관된 모바일 프레임 12개</p>
+        </div>
+        <button onclick="showToast('📷 QR 스캐너가 열렸습니다. 네컷사진 QR을 스캔하세요')" class="px-3 py-2 rounded-full bg-primary text-on-primary font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-sm">
+          <span class="material-symbols-outlined text-[16px]">qr_code_scanner</span> QR 스캔
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-surface-container-lowest p-2 rounded-xl shadow-xs border border-black/5 group cursor-pointer" onclick="showToast('🖼️ 하루필름 디지털 원본 사진을 다운로드합니다')">
+          <div class="aspect-[3/4] rounded-lg overflow-hidden relative">
+            <img class="w-full h-full object-cover group-hover:scale-105 transition-transform" alt="Saved strip 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnaTSaS2aGbNoVGEKZmIl8-4nYhvnpfJbRGvd2BBp32uznhrJBtN98VeU_fuk_lG_N1XpDFb94WYhQWC-6iUN0nBvpZeeM9LuWEcmL1DqPzP0Fvqr8gpQ8BxS9LvVLrEyZwJm5Myu1q-CDV2kqa3np0cabj98M3ihZo6zvRHBZ4EiT7M9SXZTzQesqLfzAhjSRBAixM4U3rsLgTNjZ5S0UFEExVzl2_uVCz2tWfhCA6HnoGENeKPPe"/>
+            <span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-black/60 text-white font-caption text-[10px]">2026.10.02</span>
+          </div>
+          <div class="mt-2 px-1 flex items-center justify-between">
+            <span class="font-label-sm text-label-sm font-bold text-on-surface">하루필름 강남</span>
+            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">download</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="fixed inset-0 z-50 bg-on-surface/60 backdrop-blur-sm hidden flex-col justify-end transition-opacity duration-300" id="poseViewerModal">
+    <div class="w-full max-w-lg mx-auto bg-surface rounded-t-3xl p-margin-mobile pb-safe space-y-space-md shadow-2xl border-t border-white/20">
+      <div class="w-10 h-1 bg-outline-variant/60 rounded-full mx-auto"></div>
+      
+      <div class="flex items-center justify-between">
+        <div>
+          <span class="inline-block px-2.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-semibold mb-1" id="modalCategory">포즈 가이드</span>
+          <h2 class="font-headline-md text-headline-md text-on-surface font-bold" id="modalTitle">기본 장꾸 4단 콤보</h2>
+        </div>
+        <button class="w-9 h-9 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface hover:bg-surface-container-highest transition-colors" onclick="closePoseViewer()">
+          <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+      </div>
+
+      <div class="bg-surface-container-lowest p-space-sm rounded-2xl shadow-xs border border-black/5 space-y-space-xs">
+        <div class="flex items-center justify-between pb-1 border-b border-surface-container">
+          <span class="font-label-md text-label-md text-primary font-bold flex items-center gap-1">
+            <span class="material-symbols-outlined text-[16px]">timer</span> 부스 내 화면 거치용 4컷 순서 가이드
+          </span>
+          <span class="font-caption text-caption text-on-surface-variant">10초 자동 진행</span>
+        </div>
+        <div class="grid grid-cols-1 gap-2 pt-1" id="modalStepsList">
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button class="flex-1 py-3 rounded-full bg-surface-container-highest text-on-surface font-label-lg text-label-lg active:scale-95 transition-transform" onclick="closePoseViewer()">
+          닫기
+        </button>
+        <button class="flex-1 py-3 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-transform" onclick="closePoseViewer(); showToast('📱 화면 유지 모드가 켜졌습니다. 부스 거치대에 올려두고 촬영하세요!');">
+          <span class="material-symbols-outlined text-[18px]">screen_rotation</span>
+          <span>화면 켜짐 유지</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="fixed bottom-20 inset-x-0 z-50 flex justify-center pointer-events-none px-margin-mobile"></div>
+
+  <!-- Bottom Navigation Bar -->
+  <nav class="fixed bottom-0 inset-x-0 z-40 pb-safe px-margin-mobile pointer-events-none">
+    <div class="pointer-events-auto mb-3 mx-auto max-w-md bg-surface-container-lowest/90 backdrop-blur-xl rounded-full shadow-[0_12px_32px_rgba(99,14,212,0.14),0_2px_8px_rgba(0,0,0,0.06)] px-space-xs py-1.5 flex items-center justify-between border border-white/40">
+      
+      <button class="nav-tab-btn flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 transition-all text-primary font-bold" data-target="view-map" onclick="switchView('booth-map')">
+        <span class="material-symbols-outlined text-[22px]">map</span>
+        <span class="font-label-sm text-label-sm mt-0.5">부스 지도</span>
+      </button>
+
+      <button class="nav-tab-btn flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant transition-all hover:text-on-surface" data-target="view-search" onclick="switchView('booth-search')">
+        <span class="material-symbols-outlined text-[22px]">storefront</span>
+        <span class="font-label-sm text-label-sm mt-0.5">부스 탐색</span>
+      </button>
+
+      <button class="nav-tab-btn flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant transition-all hover:text-on-surface" data-target="view-pose" onclick="switchView('pose-gallery')">
+        <span class="material-symbols-outlined text-[22px]">photo_camera</span>
+        <span class="font-label-sm text-label-sm mt-0.5">포즈 팁</span>
+      </button>
+
+      <button class="nav-tab-btn flex-1 flex flex-col items-center justify-center min-h-[44px] py-1 text-on-surface-variant transition-all hover:text-on-surface" data-target="view-album" onclick="switchView('my-album')">
+        <span class="material-symbols-outlined text-[22px]">photo_library</span>
+        <span class="font-label-sm text-label-sm mt-0.5">내 앨범</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <script>
+    // Simulated Database for Booth Locations
+    const BOOTH_DATA = {
+      'haru-gangnam': {
+        brand: '하루필름',
+        brandBadgeBg: 'bg-[#00A3FF]/10',
+        brandBadgeText: 'text-[#00A3FF]',
+        title: '강남역 2호점 (CGV 뒷골목)',
+        distance: '120m',
+        rating: '4.9',
+        reviews: '방문 리뷰 1,280+',
+        status: '대기 없음 (쾌적)',
+        badges: ['⚡ 다이슨 에어랩 구비', '🩵 시그니처 딥블루 4룸', '👒 Y2K 헤드폰 40종']
+      },
+      'life4-main': {
+        brand: '인생네컷',
+        brandBadgeBg: 'bg-[#FF2D78]/10',
+        brandBadgeText: 'text-[#FF2D78]',
+        title: '강남역 CGV 메인점',
+        distance: '210m',
+        rating: '4.75',
+        reviews: '방문 리뷰 3,120+',
+        status: '대기 약 10분',
+        badges: ['🎀 파스텔 하트 프레임', '💄 파우더룸 전신거울', '🎉 신상 한정판 굿즈']
+      },
+      'photoism-box': {
+        brand: '포토이즘',
+        brandBadgeBg: 'bg-[#1F2937]/10',
+        brandBadgeText: 'text-[#1F2937]',
+        title: '포토이즘 박스 강남점',
+        distance: '340m',
+        rating: '4.82',
+        reviews: '방문 리뷰 980+',
+        status: 'NEW 오픈 (대기 없음)',
+        badges: ['🖤 모노톤 시크 배경', '🕶️ 선글라스 20여종', '📸 하이앵글 특수 부스']
+      }
+    };
+
+    // View Switching Router Logic
+    function switchView(viewName) {
+      const views = {
+        'booth-map': 'view-map',
+        'booth-search': 'view-search',
+        'pose-gallery': 'view-pose',
+        'booth-detail': 'view-detail',
+        'my-album': 'view-album'
+      };
+
+      const targetId = views[viewName] || 'view-map';
+
+      document.querySelectorAll('.view-section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+
+      const activeSection = document.getElementById(targetId);
+      if (activeSection) {
+        activeSection.classList.add('active');
+      }
+
+      const backBtn = document.getElementById('navBackBtn');
+      const logo = document.getElementById('appHeaderLogo');
+      
+      if (viewName === 'booth-detail') {
+        backBtn.classList.remove('hidden');
+        logo.textContent = '부스 상세';
+      } else {
+        backBtn.classList.add('hidden');
+        logo.textContent = 'PhotoSpot';
+      }
+
+      document.querySelectorAll('.nav-tab-btn').forEach(btn => {
+        if (btn.getAttribute('data-target') === targetId) {
+          btn.classList.add('text-primary', 'font-bold');
+          btn.classList.remove('text-on-surface-variant');
+        } else {
+          btn.classList.remove('text-primary', 'font-bold');
+          btn.classList.add('text-on-surface-variant');
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ==========================================================================
+       MAP INTERACTIVE ZOOM & PAN ENGINE
+       ========================================================================== */
+    class InteractiveMap {
+      constructor() {
+        this.viewport = document.getElementById('mapViewport');
+        this.transformLayer = document.getElementById('mapTransformLayer');
+        this.zoomBadge = document.getElementById('zoomScaleBadge');
+
+        // State variables
+        this.scale = 1.0;
+        this.minScale = 1.0;
+        this.maxScale = 3.5;
+        this.posX = 0;
+        this.posY = 0;
+
+        // Interaction flags
+        this.isDragging = false;
+        this.startTouchX = 0;
+        this.startTouchY = 0;
+        this.lastPosX = 0;
+        this.lastPosY = 0;
+        this.initialPinchDistance = 0;
+        this.initialScale = 1.0;
+
+        this.initEventListeners();
+        this.updateTransform();
+      }
+
+      initEventListeners() {
+        // 1. Mouse Dragging
+        this.viewport.addEventListener('mousedown', (e) => {
+          this.isDragging = true;
+          this.startTouchX = e.clientX - this.posX;
+          this.startTouchY = e.clientY - this.posY;
+          this.transformLayer.classList.remove('smooth-reset');
+        });
+
+        window.addEventListener('mousemove', (e) => {
+          if (!this.isDragging) return;
+          e.preventDefault();
+          this.posX = e.clientX - this.startTouchX;
+          this.posY = e.clientY - this.startTouchY;
+          this.clampBounds();
+          this.updateTransform();
+        });
+
+        window.addEventListener('mouseup', () => {
+          this.isDragging = false;
+        });
+
+        // 2. Mouse Wheel Zoom
+        this.viewport.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const zoomFactor = e.deltaY < 0 ? 1.15 : 0.85;
+          this.setZoom(this.scale * zoomFactor);
+        }, { passive: false });
+
+        // 3. Touch Gestures (Pan & Pinch-to-Zoom)
+        this.viewport.addEventListener('touchstart', (e) => {
+          this.transformLayer.classList.remove('smooth-reset');
+          if (e.touches.length === 1) {
+            this.isDragging = true;
+            this.startTouchX = e.touches[0].clientX - this.posX;
+            this.startTouchY = e.touches[0].clientY - this.posY;
+          } else if (e.touches.length === 2) {
+            this.isDragging = false;
+            this.initialPinchDistance = this.getTouchDistance(e.touches);
+            this.initialScale = this.scale;
+          }
+        }, { passive: true });
+
+        this.viewport.addEventListener('touchmove', (e) => {
+          if (e.touches.length === 1 && this.isDragging) {
+            this.posX = e.touches[0].clientX - this.startTouchX;
+            this.posY = e.touches[0].clientY - this.startTouchY;
+            this.clampBounds();
+            this.updateTransform();
+          } else if (e.touches.length === 2) {
+            e.preventDefault();
+            const currentDistance = this.getTouchDistance(e.touches);
+            if (this.initialPinchDistance > 0) {
+              const delta = currentDistance / this.initialPinchDistance;
+              this.setZoom(this.initialScale * delta);
+            }
+          }
+        }, { passive: false });
+
+        this.viewport.addEventListener('touchend', (e) => {
+          if (e.touches.length < 2) {
+            this.initialPinchDistance = 0;
+          }
+          if (e.touches.length === 0) {
+            this.isDragging = false;
+          }
+        });
+
+        // 4. UI Controls
+        document.getElementById('zoomInBtn').addEventListener('click', () => {
+          this.setZoom(this.scale + 0.4, true);
+        });
+
+        document.getElementById('zoomOutBtn').addEventListener('click', () => {
+          this.setZoom(this.scale - 0.4, true);
+        });
+
+        document.getElementById('resetMapBtn').addEventListener('click', () => {
+          this.resetMap();
+          showToast('🎯 지도 위치와 확대를 초기화했습니다');
+        });
+      }
+
+      getTouchDistance(touches) {
+        const dx = touches[0].clientX - touches[1].clientX;
+        const dy = touches[0].clientY - touches[1].clientY;
+        return Math.hypot(dx, dy);
+      }
+
+      setZoom(newScale, animated = false) {
+        const targetScale = Math.min(Math.max(newScale, this.minScale), this.maxScale);
+        if (animated) {
+          this.transformLayer.classList.add('smooth-reset');
+        }
+        this.scale = targetScale;
+        this.clampBounds();
+        this.updateTransform();
+      }
+
+      resetMap() {
+        this.transformLayer.classList.add('smooth-reset');
+        this.scale = 1.0;
+        this.posX = 0;
+        this.posY = 0;
+        this.updateTransform();
+      }
+
+      clampBounds() {
+        // Limit pan offsets relative to zoom factor so map doesn't float completely away
+        const maxOffset = (this.scale - 1) * 220;
+        this.posX = Math.min(Math.max(this.posX, -maxOffset), maxOffset);
+        this.posY = Math.min(Math.max(this.posY, -maxOffset), maxOffset);
+      }
+
+      updateTransform() {
+        this.transformLayer.style.transform = `translate3d(${this.posX}px, ${this.posY}px, 0px) scale(${this.scale})`;
+        if (this.zoomBadge) {
+          this.zoomBadge.textContent = `확대: ${Math.round(this.scale * 100)}%`;
+        }
+      }
+    }
+
+    // Map Pin Selection Logic
+    function selectMapBooth(boothId) {
+      const data = BOOTH_DATA[boothId];
+      if (!data) return;
+
+      document.getElementById('selectedBrandBadge').textContent = data.brand;
+      document.getElementById('selectedBrandBadge').className = `px-2 py-0.5 rounded-md ${data.brandBadgeBg} ${data.brandBadgeText} font-headline-sm text-label-sm font-bold`;
+      document.getElementById('selectedBoothTitle').textContent = data.title;
+      document.getElementById('selectedDistance').innerHTML = `<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">near_me</span> ${data.distance}`;
+      document.getElementById('selectedRating').textContent = data.rating;
+      document.getElementById('selectedReviews').textContent = data.reviews;
+      document.getElementById('selectedStatus').textContent = data.status;
+
+      const badgesContainer = document.getElementById('selectedBadges');
+      badgesContainer.innerHTML = '';
+      data.badges.forEach(b => {
+        const span = document.createElement('span');
+        span.className = 'px-2.5 py-1 rounded-lg bg-surface-container-low font-label-sm text-label-sm text-on-surface-variant';
+        span.textContent = b;
+        badgesContainer.appendChild(span);
+      });
+
+      showToast(`📍 ${data.brand} ${data.title} 지점이 선택되었습니다`);
+    }
+
+    // Favorite micro-action
+    function toggleFavorite(btn) {
+      const icon = btn.querySelector('.material-symbols-outlined');
+      const isFilled = icon.style.fontVariationSettings?.includes("'FILL' 1");
+      if (isFilled) {
+        icon.style.fontVariationSettings = "'FILL' 0";
+        icon.classList.remove('text-secondary');
+        showToast('💔 즐겨찾기에서 해제되었습니다');
+      } else {
+        icon.style.fontVariationSettings = "'FILL' 1";
+        icon.classList.add('text-secondary');
+        showToast('💖 즐겨찾기에 추가되었습니다');
+      }
+    }
+
+    // Pose Guide Viewer Modal
+    function openPoseViewer(title, category, steps) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalCategory').textContent = category;
+
+      const stepsContainer = document.getElementById('modalStepsList');
+      stepsContainer.innerHTML = '';
+
+      steps.forEach((stepText, idx) => {
+        const stepEl = document.createElement('div');
+        stepEl.className = 'flex items-center gap-3 p-2.5 rounded-xl bg-surface-container-low border border-black/5';
+        stepEl.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center font-headline-sm text-[12px] font-bold shrink-0">
+            ${idx + 1}
+          </div>
+          <div class="flex-1 font-body-sm text-body-sm font-semibold text-on-surface">
+            ${stepText}
+          </div>
+          <span class="material-symbols-outlined text-[18px] text-primary/70">photo_camera</span>
+        `;
+        stepsContainer.appendChild(stepEl);
+      });
+
+      const modal = document.getElementById('poseViewerModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closePoseViewer() {
+      const modal = document.getElementById('poseViewerModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Search filter helper
+    function filterSearchList(query) {
+      const cards = document.querySelectorAll('#searchCardsList > div');
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        if (text.includes(query.toLowerCase())) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    // Toast Notification Banner (replaces alert/confirm)
+    function showToast(message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'bg-inverse-surface/90 text-inverse-on-surface text-body-sm font-semibold px-4 py-2.5 rounded-full shadow-lg backdrop-blur-md toast-animate pointer-events-auto flex items-center gap-2 max-w-xs text-center';
+      toast.textContent = message;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 2400);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Interactive Zoom Map Controller
+      window.photoSpotMap = new InteractiveMap();
+
+      // Brand Chips Handling
+      document.querySelectorAll('.brand-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.brand-chip').forEach(c => {
+            c.classList.remove('bg-primary', 'text-on-primary', 'active');
+            c.classList.add('bg-surface-container-lowest', 'text-on-surface');
+          });
+          chip.classList.remove('bg-surface-container-lowest', 'text-on-surface');
+          chip.classList.add('bg-primary', 'text-on-primary', 'active');
+          showToast(`필터: ${chip.textContent.trim()} 부스를 검색합니다`);
+        });
+      });
+
+      // Keyword Tag Filter Handling
+      document.querySelectorAll('.filter-tag').forEach(tag => {
+        tag.addEventListener('click', () => {
+          tag.classList.toggle('bg-primary-fixed');
+          tag.classList.toggle('text-on-primary-fixed');
+        });
+      });
+
+      // Hide guide hint after 4 seconds
+      setTimeout(() => {
+        const hint = document.getElementById('mapGuideHint');
+        if (hint) hint.style.opacity = '0';
+      }, 4000);
+    });
+  </script>
+</body>
+</html>
